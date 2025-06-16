@@ -23,13 +23,25 @@ def rlv_to_onnx(rlv_file, onnx_file):
     outputs = []
     initializers = []
 
-    # Create input
+    # Create input with (1, 1, 28, 28) shape
     input_name = "input"
     inputs.append(
-        helper.make_tensor_value_info(input_name, TensorProto.FLOAT, [1, net.inputSize])
+        helper.make_tensor_value_info(input_name, TensorProto.FLOAT, [1, 1, 28, 28])
     )
 
-    last_output = input_name
+    # Add a Flatten node instead of Reshape
+    flatten_output_name = "flattened_input"
+    nodes.append(
+        helper.make_node(
+            "Flatten",
+            inputs=[input_name],
+            outputs=[flatten_output_name],
+            name="flatten_input",
+            axis=1,  # Keep batch dimension (1) and flatten the rest (1x28x28 = 784)
+        )
+    )
+
+    last_output = flatten_output_name
     layer_idx = 0
 
     # Process each layer
