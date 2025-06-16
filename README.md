@@ -8,15 +8,10 @@ If your RLV files contain more complex structures not covered by this implementa
 
 After conversion, you may want to verify that the ONNX model produces the same outputs as your original RLV model for the same inputs.
 
-## Dependencies
-
-```bash
-pip install onnx numpy cvxpy
-```
-
 ## Usage
 
 ```bash
 git clone --recursive git@github.com:ytsao/rlv2onnx.git
+pip install onnx numpy cvxpy
 python convert_rlv_to_onnx.py --rlv /path/to/network.rlv --onnx /path/to/output.onnx
 ```
