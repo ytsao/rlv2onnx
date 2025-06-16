@@ -2,7 +2,7 @@ import numpy as np
 import onnx
 from onnx import helper, TensorProto
 import os
-from network import network, layer
+from dep.RefineRobustness.network import network, layer
 
 
 def rlv_to_onnx(rlv_file, onnx_file):
