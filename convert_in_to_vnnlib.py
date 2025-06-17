@@ -71,29 +71,57 @@ def convert_in_to_vnnlib(
 
         # Output constraints
         f.write("\n; Output constraints\n")
+        # For robustness properties, we typically want to check if any output class
+        # other than the correct class has a higher value
+        # Format: (assert (or (and (>= Y_0 Y_c)) (and (>= Y_1 Y_c)) ...))
+
+        # Group constraints by their structure
+        # Assuming constraints represent: "verify that output class X is NOT the highest output"
+        target_classes = set()
         for constraint in output_constraints:
-            weights = constraint[:-1]  # All but the last element
-            bias = constraint[-1]  # Last element
+            # Find the negative entry which usually indicates the target class
+            weights = constraint[:-1]
+            negatives = [i for i, w in enumerate(weights) if w < 0]
+            if len(negatives) == 1:
+                target_classes.add(negatives[0])
 
-            # Build the expression: w_0*y_0 + w_1*y_1 + ... + w_n*y_n + bias >= 0
-            terms = []
-            for i, w in enumerate(weights):
-                if w != 0:
-                    terms.append(f"{w} Y_{i}")
+        for target_class in target_classes:
+            # Start a new disjunction for each target class
+            f.write(f"(assert (or\n")
 
-            if terms:
-                expression = " ".join(terms)
-                if len(terms) > 1:
-                    expression = f"(+ {expression})"
+            # For each possible output class
+            for i in range(output_size):
+                if i != target_class:
+                    # Assert that this class has a higher value than target_class
+                    f.write(f"    (and (>= Y_{i} Y_{target_class}))\n")
 
-                # Add the bias if necessary
-                if bias != 0:
-                    if len(terms) > 0:
-                        expression = f"(+ {expression} {bias})"
-                    else:
-                        expression = str(bias)
+            f.write("))\n")
 
-                f.write(f"(assert (>= {expression} 0))\n")
+        # If we don't have standard robustness properties, fall back to directly translating constraints
+        if not target_classes:
+            for constraint in output_constraints:
+                weights = constraint[:-1]  # All but the last element
+                bias = constraint[-1]  # Last element
+
+                # Build the expression: w_0*y_0 + w_1*y_1 + ... + w_n*y_n + bias >= 0
+                terms = []
+                for i, w in enumerate(weights):
+                    if w != 0:
+                        terms.append(f"{w} Y_{i}")
+
+                if terms:
+                    expression = " ".join(terms)
+                    if len(terms) > 1:
+                        expression = f"(+ {expression})"
+
+                    # Add the bias if necessary
+                    if bias != 0:
+                        if len(terms) > 0:
+                            expression = f"(+ {expression} {bias})"
+                        else:
+                            expression = str(bias)
+
+                    f.write(f"(assert (>= {expression} 0))\n")
 
 
 def batch_convert(

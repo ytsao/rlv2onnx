@@ -2364,12 +2364,14 @@
 (assert (>= X_783 0.0))
 
 ; Output constraints
-(assert (>= (+ 1.0 Y_0 -1.0 Y_9) 0))
-(assert (>= (+ 1.0 Y_1 -1.0 Y_9) 0))
-(assert (>= (+ 1.0 Y_2 -1.0 Y_9) 0))
-(assert (>= (+ 1.0 Y_3 -1.0 Y_9) 0))
-(assert (>= (+ 1.0 Y_4 -1.0 Y_9) 0))
-(assert (>= (+ 1.0 Y_5 -1.0 Y_9) 0))
-(assert (>= (+ 1.0 Y_6 -1.0 Y_9) 0))
-(assert (>= (+ 1.0 Y_7 -1.0 Y_9) 0))
-(assert (>= (+ 1.0 Y_8 -1.0 Y_9) 0))
+(assert (or
+    (and (>= Y_0 Y_9))
+    (and (>= Y_1 Y_9))
+    (and (>= Y_2 Y_9))
+    (and (>= Y_3 Y_9))
+    (and (>= Y_4 Y_9))
+    (and (>= Y_5 Y_9))
+    (and (>= Y_6 Y_9))
+    (and (>= Y_7 Y_9))
+    (and (>= Y_8 Y_9))
+))
